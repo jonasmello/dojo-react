@@ -12,7 +12,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Route path="/" exact component={LoginPage} />
-        <Route path="/usuario" component={UserDetails} />
+        <Route path="/:login" component={UserDetails} />
       </BrowserRouter>
     </div>
   );
