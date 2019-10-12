@@ -1,0 +1,40 @@
+.content-top {
+  display: flex;
+  padding: 30px 0;
+  .segment {
+    margin: 0;
+    width: calc(50% - 15px);
+    + .segment {
+      display: flex;
+      flex-direction: column;
+      margin-left: 30px;
+    }
+  }
+  .details-form {
+    margin: auto 50px;
+  }
+}
+.users-list{  
+  .list-item{
+    margin-bottom: 5px;
+    width: 30%;
+    &:nth-child(3n+1) {
+      margin-left: 0 !important;
+    }
+  }
+  .list-item-ct {
+    display: flex;
+  }
+}
+.content-top .user-thumb {
+}
+.page {
+  &.details {
+    .header {
+      &.medium {
+        margin-top: 5px;
+        margin-bottom: 0px;
+      }
+    }
+  }
+}
