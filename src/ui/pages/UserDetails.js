@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
 import { Container, Divider, Grid, Header, Image, Segment } from "semantic-ui-react";
 
-import UserList from "../components/UserList";
+import { setUserData } from "../../redux/actions/userDataActions";
+import { setFollowers } from "../../redux/actions/followersActions";
+import { setFollowing } from "../../redux/actions/followingActions";
+
+import FollowAndFollowers from "../components/FollowAndFollowers";
 import LoginForm from "../components/LoginForm";
 
 const headers = {
@@ -11,17 +16,16 @@ const headers = {
 };
 
 const UserDetails = props => {
-  const { login } = props.match.params;
   const url = "https://api.github.com/users/";
-  const [userData, setUserData] = useState({});
-  const [followersList, setFollowersList] = useState([]);
-  const [followingList, setFollowingList] = useState([]);
+  const { login } = props.match.params;
+
+  const { userData, setUserData, setFollowers, setFollowing } = props;
 
   useEffect(() => {
     async function fetchUserData(login) {
       setUserData({});
-      setFollowersList([]);
-      setFollowingList([]);
+      setFollowers([]);
+      setFollowing([]);
 
       const responseUserData = await fetch(url + login, headers);
       const jsonUserData = await responseUserData.json();
@@ -29,22 +33,21 @@ const UserDetails = props => {
       setUserData(jsonUserData);
     }
     fetchUserData(login);
-  }, [login]);
-
-  async function fetchFollowersAndFollowing(login) {
-    const responseFollowers = await fetch(url + login + "/followers?per_page=99999", headers);
-    const responseFollowing = await fetch(url + login + "/following?per_page=99999", headers);
-    const jsonFollowers = await responseFollowers.json();
-    const jsonFollowing = await responseFollowing.json();
-    setFollowersList(jsonFollowers);
-    setFollowingList(jsonFollowing);
-  }
+  }, [login, setUserData, setFollowers, setFollowing]);
 
   useEffect(() => {
+    async function fetchFollowersAndFollowing(login) {
+      const responseFollowers = await fetch(url + login + "/followers?per_page=100", headers);
+      const responseFollowing = await fetch(url + login + "/following?per_page=100", headers);
+      const jsonFollowers = await responseFollowers.json();
+      const jsonFollowing = await responseFollowing.json();
+      setFollowers(jsonFollowers);
+      setFollowing(jsonFollowing);
+    }
     if (userData.login) {
       fetchFollowersAndFollowing(userData.login);
     }
-  }, [userData.login]);
+  }, [userData.login, setFollowers, setFollowing]);
 
   return (
     <Container className="page details">
@@ -85,20 +88,18 @@ const UserDetails = props => {
         </Segment>
       </div>
 
-      <Grid columns={2} doubling>
-        <Grid.Column>
-          <Segment>
-            <UserList total={userData.followers} users={followersList} title={"Seguidores"} />
-          </Segment>
-        </Grid.Column>
-        <Grid.Column>
-          <Segment>
-            <UserList total={userData.following} users={followingList} title={"Seguindo"} />
-          </Segment>
-        </Grid.Column>
-      </Grid>
+      <FollowAndFollowers />
     </Container>
   );
 };
+const mapStateToProps = state => ({
+  userData: state.userData,
+  followers: state.followers,
+  following: state.following
+});
+const mapDispatchToProps = { setUserData, setFollowers, setFollowing };
 
-export default UserDetails;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UserDetails);
